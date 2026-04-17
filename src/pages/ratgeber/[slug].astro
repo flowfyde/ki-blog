@@ -1,0 +1,437 @@
+---
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map(post => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await post.render();
+
+const allPosts = (await getCollection('blog'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const related = allPosts
+  .filter(p => p.slug !== post.slug)
+  .slice(0, 3);
+---
+
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{post.data.title} — Flowfy</title>
+  <meta name="description" content={post.data.description} />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Instrument+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f8f7f4; --bg2: #f0ede8;
+      --border: #e8e4dd; --border2: #d4cfc7;
+      --text: #1a1815; --text2: #6b6660; --text3: #9b9590;
+      --accent: #1a6b4a; --accent-light: #e8f4ee; --accent2: #2d8f65;
+      --radius: 12px; --radius-lg: 20px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    html { background: var(--bg); color: var(--text); font-family: 'Instrument Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+    body { overflow-x: hidden; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 max(2rem, calc((100vw - 1200px) / 2));
+      background: rgba(248,247,244,0.88); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 900; font-size: 1.25rem; color: var(--text); text-decoration: none; letter-spacing: -0.03em; }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 0.25rem; align-items: center; }
+    .nav-links a { font-size: 0.875rem; color: var(--text2); text-decoration: none; padding: 0.4rem 0.75rem; border-radius: 8px; transition: all 0.15s; font-weight: 500; }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); background: var(--bg2); }
+    .nav-cta { background: var(--accent) !important; color: white !important; }
+    .nav-cta:hover { background: var(--accent2) !important; }
+
+    /* PROGRESS BAR */
+    .progress-bar {
+      position: fixed; top: 64px; left: 0; right: 0; height: 3px;
+      background: var(--border); z-index: 99;
+    }
+    .progress-fill {
+      height: 100%; background: var(--accent);
+      width: 0%; transition: width 0.1s linear;
+    }
+
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+
+    /* BREADCRUMB */
+    .breadcrumb {
+      padding: 88px 0 0;
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.78rem; color: var(--text3);
+    }
+    .breadcrumb a { color: var(--text3); text-decoration: none; transition: color 0.15s; }
+    .breadcrumb a:hover { color: var(--accent); }
+    .breadcrumb-sep { color: var(--border2); }
+    .breadcrumb-current { color: var(--text2); }
+
+    /* LAYOUT */
+    .layout {
+      display: grid;
+      grid-template-columns: 200px 1fr 240px;
+      gap: 3rem;
+      align-items: start;
+      padding: 2rem 0 5rem;
+    }
+
+    /* LEFT NAV — STICKY TOC */
+    .left-nav { position: sticky; top: 88px; }
+
+    .left-nav-title {
+      font-size: 0.68rem; font-weight: 600; color: var(--text3);
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem;
+    }
+
+    .toc { display: flex; flex-direction: column; gap: 0; }
+    .toc-item {
+      display: block; font-size: 0.8rem; color: var(--text3);
+      text-decoration: none; padding: 0.35rem 0.75rem;
+      border-left: 2px solid var(--border);
+      transition: all 0.15s; line-height: 1.4;
+    }
+    .toc-item:hover { color: var(--text); border-left-color: var(--border2); }
+    .toc-item.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+    .toc-item.h3 { padding-left: 1.25rem; font-size: 0.75rem; }
+
+    .left-divider { height: 1px; background: var(--border); margin: 1.25rem 0; }
+
+    .back-link {
+      display: flex; align-items: center; gap: 0.4rem;
+      font-size: 0.78rem; color: var(--text3); text-decoration: none;
+      transition: color 0.15s; padding: 0.35rem 0;
+    }
+    .back-link:hover { color: var(--accent); }
+
+    /* ARTICLE */
+    article { min-width: 0; }
+
+    .article-header { margin-bottom: 2rem; }
+    .article-tag {
+      display: inline-block; font-size: 0.68rem; font-weight: 600;
+      color: var(--accent); background: var(--accent-light);
+      padding: 0.2rem 0.6rem; border-radius: 4px; margin-bottom: 0.85rem;
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
+
+    h1 {
+      font-family: 'Cabinet Grotesk', sans-serif;
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem); font-weight: 900;
+      letter-spacing: -0.03em; line-height: 1.1; color: var(--text);
+      margin-bottom: 1rem;
+    }
+
+    .article-meta {
+      display: flex; align-items: center; gap: 1.25rem;
+      font-size: 0.78rem; color: var(--text3);
+      padding-bottom: 1.25rem; border-bottom: 1px solid var(--border);
+      margin-bottom: 1.75rem; flex-wrap: wrap;
+    }
+    .meta-item { display: flex; align-items: center; gap: 0.3rem; }
+
+    .hero-img {
+      width: 100%; border-radius: var(--radius-lg);
+      margin-bottom: 2rem; display: block;
+      box-shadow: var(--shadow); filter: saturate(0.9);
+    }
+
+    /* PROSE */
+    .prose { line-height: 1.8; }
+    .prose h2 {
+      font-family: 'Cabinet Grotesk', sans-serif; font-size: 1.4rem; font-weight: 800;
+      letter-spacing: -0.02em; color: var(--text); margin: 2.5rem 0 1rem;
+      padding-bottom: 0.6rem; border-bottom: 2px solid var(--accent-light);
+    }
+    .prose h3 {
+      font-family: 'Cabinet Grotesk', sans-serif; font-size: 1.1rem; font-weight: 700;
+      color: var(--text); margin: 1.75rem 0 0.75rem; letter-spacing: -0.01em;
+    }
+    .prose p { font-size: 0.95rem; color: var(--text2); margin-bottom: 1.1rem; }
+    .prose strong { color: var(--text); font-weight: 600; }
+    .prose em { font-style: italic; color: var(--text2); }
+    .prose a { color: var(--accent); text-decoration: underline; text-decoration-color: rgba(26,107,74,0.3); transition: text-decoration-color 0.15s; }
+    .prose a:hover { text-decoration-color: var(--accent); }
+    .prose ul, .prose ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
+    .prose li { font-size: 0.95rem; color: var(--text2); margin-bottom: 0.4rem; line-height: 1.7; }
+    .prose li::marker { color: var(--accent); }
+    .prose blockquote {
+      border-left: 3px solid var(--accent); margin: 1.5rem 0;
+      padding: 0.85rem 1.25rem; background: var(--accent-light);
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
+    .prose blockquote p { color: var(--accent); font-style: italic; margin: 0; font-weight: 500; }
+    .prose code {
+      background: var(--bg2); border: 1px solid var(--border);
+      padding: 0.15rem 0.4rem; border-radius: 4px;
+      font-size: 0.85em; color: var(--accent); font-family: monospace;
+    }
+    .prose pre {
+      background: var(--text); border-radius: var(--radius);
+      padding: 1.25rem; margin: 1.25rem 0; overflow-x: auto;
+    }
+    .prose pre code { background: none; border: none; color: #a8ff78; padding: 0; font-size: 0.85rem; }
+    .prose hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+    .prose table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.875rem; }
+    .prose th { background: var(--bg2); padding: 0.6rem 0.85rem; text-align: left; font-weight: 600; color: var(--text); border-bottom: 2px solid var(--border2); }
+    .prose td { padding: 0.6rem 0.85rem; border-bottom: 1px solid var(--border); color: var(--text2); }
+    .prose tr:last-child td { border-bottom: none; }
+
+    /* RIGHT SIDEBAR */
+    .right-sidebar { position: sticky; top: 88px; display: flex; flex-direction: column; gap: 1rem; }
+
+    .sidebar-card {
+      background: white; border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1.25rem;
+    }
+    .sidebar-card-title { font-family: 'Cabinet Grotesk', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.85rem; letter-spacing: -0.01em; }
+
+    .related-item {
+      display: flex; flex-direction: column; gap: 0.25rem;
+      padding: 0.65rem 0; border-bottom: 1px solid var(--border);
+      text-decoration: none; transition: all 0.15s;
+    }
+    .related-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .related-item:hover .related-title { color: var(--accent); }
+    .related-title { font-size: 0.8rem; font-weight: 500; color: var(--text); line-height: 1.35; transition: color 0.15s; }
+    .related-date { font-size: 0.7rem; color: var(--text3); }
+
+    .nl-card {
+      background: var(--accent); border-radius: var(--radius-lg);
+      padding: 1.25rem;
+    }
+    .nl-card-title { font-family: 'Cabinet Grotesk', sans-serif; font-size: 0.9rem; font-weight: 800; color: white; margin-bottom: 0.4rem; }
+    .nl-card p { font-size: 0.75rem; color: rgba(255,255,255,0.7); line-height: 1.5; margin-bottom: 0.85rem; }
+    .nl-input {
+      width: 100%; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);
+      color: white; padding: 0.55rem 0.75rem; border-radius: 8px;
+      font-size: 0.78rem; font-family: 'Instrument Sans', sans-serif;
+      outline: none; margin-bottom: 0.5rem;
+    }
+    .nl-input::placeholder { color: rgba(255,255,255,0.4); }
+    .nl-btn {
+      width: 100%; background: white; color: var(--accent); border: none;
+      padding: 0.55rem; border-radius: 8px; font-size: 0.78rem;
+      font-weight: 600; cursor: pointer; font-family: 'Instrument Sans', sans-serif;
+      transition: opacity 0.15s;
+    }
+    .nl-btn:hover { opacity: 0.9; }
+
+    .share-btns { display: flex; flex-direction: column; gap: 0.4rem; }
+    .share-btn {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid var(--border);
+      background: transparent; font-size: 0.78rem; color: var(--text2);
+      cursor: pointer; font-family: 'Instrument Sans', sans-serif;
+      transition: all 0.15s; text-decoration: none;
+    }
+    .share-btn:hover { background: var(--bg2); color: var(--text); }
+
+    /* ARTICLE FOOTER */
+    .article-footer {
+      margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-nav { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .footer-nav a {
+      font-size: 0.82rem; color: var(--accent); text-decoration: none;
+      display: flex; align-items: center; gap: 0.3rem; transition: gap 0.15s;
+    }
+    .footer-nav a:hover { gap: 0.5rem; }
+
+    footer { border-top: 1px solid var(--border); padding: 2rem 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-top: 4rem; }
+    .footer-logo { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 900; font-size: 1rem; color: var(--text2); text-decoration: none; }
+    .footer-logo span { color: var(--accent); }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a { font-size: 0.78rem; color: var(--text3); text-decoration: none; transition: color 0.15s; }
+    .footer-links a:hover { color: var(--text); }
+
+    @media (max-width: 1024px) {
+      .layout { grid-template-columns: 1fr 220px; }
+      .left-nav { display: none; }
+    }
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+      .right-sidebar { display: none; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Flowfy<span>.</span></a>
+  <div class="nav-links">
+    <a href="/ratgeber" class="active">KI-Ratgeber</a>
+    <a href="/blog">Blog</a>
+    <a href="/ueber-mich">Über mich</a>
+    <a href="/kontakt">Kontakt</a>
+    <a href="https://claude.ai" target="_blank" class="nav-cta">Claude testen →</a>
+  </div>
+</nav>
+
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+<div class="wrap">
+  <div class="breadcrumb">
+    <a href="/">Flowfy</a>
+    <span class="breadcrumb-sep">›</span>
+    <a href="/ratgeber">KI-Ratgeber</a>
+    <span class="breadcrumb-sep">›</span>
+    <span class="breadcrumb-current">{post.data.title}</span>
+  </div>
+
+  <div class="layout">
+
+    <!-- LEFT TOC -->
+    <div class="left-nav">
+      <a href="/ratgeber" class="back-link">← Zurück zum Ratgeber</a>
+      <div class="left-divider"></div>
+      {headings.length > 0 && (
+        <>
+          <div class="left-nav-title">Inhalt</div>
+          <nav class="toc">
+            {headings.filter(h => h.depth <= 3).map(h => (
+              <a
+                href={`#${h.slug}`}
+                class={`toc-item ${h.depth === 3 ? 'h3' : ''}`}
+                data-heading={h.slug}
+              >
+                {h.text}
+              </a>
+            ))}
+          </nav>
+        </>
+      )}
+    </div>
+
+    <!-- ARTICLE -->
+    <article>
+      <div class="article-header">
+        <span class="article-tag">KI-Ratgeber</span>
+        <h1>{post.data.title}</h1>
+        <div class="article-meta">
+          <span class="meta-item">📅 {post.data.pubDate.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+          <span class="meta-item">⏱ ca. 5 Min. Lesezeit</span>
+          <span class="meta-item">✍️ Flowfy-Autor</span>
+        </div>
+      </div>
+
+      {post.data.heroImage && (
+        <img
+          src={typeof post.data.heroImage === 'string' ? post.data.heroImage : post.data.heroImage.src}
+          alt={post.data.title}
+          class="hero-img"
+        />
+      )}
+
+      <div class="prose">
+        <Content />
+      </div>
+
+      <div class="article-footer">
+        <div class="footer-nav">
+          <a href="/ratgeber">← Alle Ratgeber-Artikel</a>
+        </div>
+        <div class="footer-nav">
+          <a href="/kontakt">Feedback geben →</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- RIGHT SIDEBAR -->
+    <div class="right-sidebar">
+
+      {related.length > 0 && (
+        <div class="sidebar-card">
+          <div class="sidebar-card-title">Weitere Artikel</div>
+          {related.map(p => (
+            <a href={`/ratgeber/${p.slug}/`} class="related-item">
+              <div class="related-title">{p.data.title}</div>
+              <div class="related-date">{p.data.pubDate.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+            </a>
+          ))}
+        </div>
+      )}
+
+      <div class="nl-card">
+        <div class="nl-card-title">Newsletter</div>
+        <p>Neue Artikel direkt ins Postfach — jeden Dienstag.</p>
+        <form onsubmit="return false;">
+          <input type="email" class="nl-input" placeholder="deine@email.de" />
+          <button type="submit" class="nl-btn">Abonnieren →</button>
+        </form>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="sidebar-card-title">Artikel teilen</div>
+        <div class="share-btns">
+          <button class="share-btn" onclick="navigator.clipboard.writeText(window.location.href).then(()=>this.textContent='✅ Link kopiert!')">
+            🔗 Link kopieren
+          </button>
+          <a class="share-btn" href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.data.title)}&url=${encodeURIComponent('https://flowfy.de/ratgeber/' + post.slug)}`} target="_blank">
+            𝕏 Auf X teilen
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <footer>
+    <a href="/" class="footer-logo">Flowfy<span>.</span></a>
+    <div class="footer-links">
+      <a href="/ratgeber">Ratgeber</a>
+      <a href="/blog">Blog</a>
+      <a href="/ueber-mich">Über mich</a>
+      <a href="/kontakt">Kontakt</a>
+    </div>
+    <span style="font-size:0.75rem;color:var(--text3)">© {new Date().getFullYear()} Flowfy</span>
+  </footer>
+</div>
+
+<script>
+  // Progress bar
+  const progress = document.getElementById('progress');
+  window.addEventListener('scroll', () => {
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = Math.round((window.scrollY / total) * 100);
+    if (progress) progress.style.width = pct + '%';
+  });
+
+  // Active TOC item
+  const headings = document.querySelectorAll('article h2, article h3');
+  const tocItems = document.querySelectorAll('.toc-item');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        tocItems.forEach(item => item.classList.remove('active'));
+        const active = document.querySelector(`.toc-item[data-heading="${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-64px 0px -60% 0px' });
+
+  headings.forEach(h => observer.observe(h));
+</script>
+
+</body>
+</html>

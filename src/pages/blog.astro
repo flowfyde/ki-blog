@@ -1,0 +1,323 @@
+---
+import { getCollection } from 'astro:content';
+
+const allPosts = (await getCollection('blog'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const featured = allPosts[0];
+const rest = allPosts.slice(1);
+---
+
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog — Flowfy</title>
+  <meta name="description" content="Neueste KI-Artikel, Tool-Tests und Praxis-Tipps — immer aktuell und verständlich erklärt." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Instrument+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f8f7f4; --bg2: #f0ede8; --surface: #ffffff;
+      --border: #e8e4dd; --border2: #d4cfc7;
+      --text: #1a1815; --text2: #6b6660; --text3: #9b9590;
+      --accent: #1a6b4a; --accent-light: #e8f4ee; --accent2: #2d8f65;
+      --radius: 12px; --radius-lg: 20px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow: 0 4px 16px rgba(0,0,0,0.08);
+      --shadow-lg: 0 20px 60px rgba(0,0,0,0.1);
+    }
+    html { background: var(--bg); color: var(--text); font-family: 'Instrument Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+    body { overflow-x: hidden; }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 max(2rem, calc((100vw - 1200px) / 2));
+      background: rgba(248,247,244,0.88); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 900; font-size: 1.25rem; color: var(--text); text-decoration: none; letter-spacing: -0.03em; }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 0.25rem; align-items: center; }
+    .nav-links a { font-size: 0.875rem; color: var(--text2); text-decoration: none; padding: 0.4rem 0.75rem; border-radius: 8px; transition: all 0.15s; font-weight: 500; }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); background: var(--bg2); }
+    .nav-cta { background: var(--accent) !important; color: white !important; }
+    .nav-cta:hover { background: var(--accent2) !important; }
+
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+
+    .page-header { padding: 120px 0 3rem; border-bottom: 1px solid var(--border); margin-bottom: 3rem; }
+    .page-tag { font-size: 0.72rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.6rem; }
+    .page-title { font-family: 'Cabinet Grotesk', sans-serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 0.75rem; }
+    .page-sub { font-size: 0.95rem; color: var(--text2); line-height: 1.7; max-width: 50ch; margin-bottom: 2rem; }
+
+    .filter-row { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+    .filters { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .filter-btn {
+      font-size: 0.78rem; font-weight: 500; padding: 0.35rem 0.85rem;
+      border-radius: 100px; border: 1px solid var(--border2);
+      background: white; color: var(--text2); cursor: pointer;
+      transition: all 0.15s; font-family: 'Instrument Sans', sans-serif;
+    }
+    .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .filter-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+    .sort-select {
+      font-size: 0.78rem; padding: 0.35rem 0.75rem; border-radius: 8px;
+      border: 1px solid var(--border2); background: white; color: var(--text2);
+      font-family: 'Instrument Sans', sans-serif; cursor: pointer; outline: none;
+    }
+
+    /* FEATURED */
+    .featured {
+      display: grid; grid-template-columns: 1.2fr 1fr;
+      gap: 0; background: white; border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+      margin-bottom: 3rem; text-decoration: none;
+      transition: all 0.25s; box-shadow: var(--shadow-sm);
+    }
+    .featured:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+    .featured-img { width: 100%; height: 100%; object-fit: cover; min-height: 280px; filter: saturate(0.85); display: block; }
+    .featured-body { padding: 2.5rem; display: flex; flex-direction: column; justify-content: center; }
+    .featured-badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.7rem; font-weight: 600; color: var(--accent);
+      background: var(--accent-light); padding: 0.2rem 0.65rem;
+      border-radius: 4px; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.04em; width: fit-content;
+    }
+    .featured-title { font-family: 'Cabinet Grotesk', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--text); line-height: 1.2; margin-bottom: 0.85rem; letter-spacing: -0.02em; }
+    .featured-desc { font-size: 0.9rem; color: var(--text2); line-height: 1.65; margin-bottom: 1.5rem; }
+    .featured-meta { display: flex; align-items: center; justify-content: space-between; padding-top: 1.25rem; border-top: 1px solid var(--border); }
+    .featured-date { font-size: 0.78rem; color: var(--text3); }
+    .featured-arr { font-size: 0.9rem; color: var(--accent); font-weight: 500; display: flex; align-items: center; gap: 0.35rem; transition: gap 0.15s; }
+    .featured:hover .featured-arr { gap: 0.55rem; }
+
+    /* GRID */
+    .posts-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    .posts-title { font-family: 'Cabinet Grotesk', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+    .posts-count { font-size: 0.8rem; color: var(--text3); }
+
+    .posts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem; margin-bottom: 4rem; }
+
+    .post-card {
+      background: white; border: 1px solid var(--border); border-radius: var(--radius-lg);
+      overflow: hidden; text-decoration: none; display: flex; flex-direction: column;
+      transition: all 0.2s;
+    }
+    .post-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); border-color: var(--border2); }
+    .post-card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; filter: saturate(0.85); display: block; transition: filter 0.3s; }
+    .post-card:hover img { filter: saturate(1); }
+    .post-body { padding: 1.25rem 1.5rem 1.5rem; flex: 1; display: flex; flex-direction: column; }
+    .post-tag { font-size: 0.68rem; font-weight: 600; color: var(--accent); background: var(--accent-light); padding: 0.18rem 0.55rem; border-radius: 4px; margin-bottom: 0.65rem; display: inline-block; text-transform: uppercase; letter-spacing: 0.04em; }
+    .post-title { font-family: 'Cabinet Grotesk', sans-serif; font-size: 1rem; font-weight: 700; color: var(--text); line-height: 1.3; margin-bottom: 0.5rem; letter-spacing: -0.01em; }
+    .post-desc { font-size: 0.83rem; color: var(--text2); line-height: 1.6; flex: 1; }
+    .post-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 0.85rem; border-top: 1px solid var(--border); }
+    .post-date { font-size: 0.72rem; color: var(--text3); }
+    .post-arr { font-size: 0.85rem; color: var(--accent); transition: transform 0.15s; }
+    .post-card:hover .post-arr { transform: translateX(3px); }
+
+    /* EMPTY STATE */
+    .empty { text-align: center; padding: 4rem 2rem; color: var(--text3); }
+    .empty p { font-size: 0.9rem; margin-top: 0.5rem; }
+
+    /* NEWSLETTER STRIP */
+    .nl-strip {
+      background: var(--text); border-radius: var(--radius-lg);
+      padding: 2.5rem 3rem; margin-bottom: 4rem;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 2rem; flex-wrap: wrap;
+    }
+    .nl-strip h3 { font-family: 'Cabinet Grotesk', sans-serif; font-size: 1.3rem; font-weight: 800; color: white; letter-spacing: -0.02em; margin-bottom: 0.3rem; }
+    .nl-strip p { font-size: 0.82rem; color: rgba(255,255,255,0.5); }
+    .nl-form { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+    .nl-form input {
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+      color: white; padding: 0.7rem 1rem; border-radius: var(--radius);
+      font-size: 0.85rem; font-family: 'Instrument Sans', sans-serif;
+      outline: none; min-width: 220px; transition: border-color 0.2s;
+    }
+    .nl-form input::placeholder { color: rgba(255,255,255,0.3); }
+    .nl-form input:focus { border-color: var(--accent2); }
+    .nl-form button {
+      background: var(--accent); color: white; border: none;
+      padding: 0.7rem 1.25rem; border-radius: var(--radius);
+      font-size: 0.85rem; font-weight: 600; cursor: pointer;
+      font-family: 'Instrument Sans', sans-serif; transition: background 0.2s; white-space: nowrap;
+    }
+    .nl-form button:hover { background: var(--accent2); }
+
+    footer { border-top: 1px solid var(--border); padding: 2rem 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .footer-logo { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 900; font-size: 1rem; color: var(--text2); text-decoration: none; letter-spacing: -0.02em; }
+    .footer-logo span { color: var(--accent); }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a { font-size: 0.78rem; color: var(--text3); text-decoration: none; transition: color 0.15s; }
+    .footer-links a:hover { color: var(--text); }
+
+    .reveal { opacity: 0; transform: translateY(16px); transition: all 0.5s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .featured { grid-template-columns: 1fr; }
+      .featured-img { min-height: 200px; }
+      .posts-grid { grid-template-columns: 1fr; }
+      .nl-strip { padding: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Flowfy<span>.</span></a>
+  <div class="nav-links">
+    <a href="/ratgeber">KI-Ratgeber</a>
+    <a href="/blog" class="active">Blog</a>
+    <a href="/ueber-mich">Über mich</a>
+    <a href="/kontakt">Kontakt</a>
+    <a href="https://claude.ai" target="_blank" class="nav-cta">Claude testen →</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <div class="page-header">
+    <div class="page-tag">Blog</div>
+    <h1 class="page-title">Neueste Artikel</h1>
+    <p class="page-sub">KI-Tool-Tests, Praxis-Tipps und Hintergründe — immer aktuell, immer verständlich.</p>
+
+    <div class="filter-row">
+      <div class="filters">
+        <button class="filter-btn active" data-filter="all">Alle</button>
+        <button class="filter-btn" data-filter="guide">Guides</button>
+        <button class="filter-btn" data-filter="vergleich">Vergleiche</button>
+        <button class="filter-btn" data-filter="prompts">Prompts</button>
+        <button class="filter-btn" data-filter="news">News</button>
+      </div>
+      <select class="sort-select" id="sort">
+        <option value="new">Neueste zuerst</option>
+        <option value="old">Älteste zuerst</option>
+      </select>
+    </div>
+  </div>
+
+  {featured && (
+    <a href={`/blog/${featured.slug}/`} class="featured reveal">
+      {featured.data.heroImage && (
+        <img
+          src={typeof featured.data.heroImage === 'string' ? featured.data.heroImage : featured.data.heroImage.src}
+          alt={featured.data.title}
+          class="featured-img"
+        />
+      )}
+      <div class="featured-body">
+        <span class="featured-badge">⭐ Neuester Artikel</span>
+        <div class="featured-title">{featured.data.title}</div>
+        <p class="featured-desc">{featured.data.description}</p>
+        <div class="featured-meta">
+          <span class="featured-date">
+            {featured.data.pubDate.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })}
+          </span>
+          <span class="featured-arr">Artikel lesen →</span>
+        </div>
+      </div>
+    </a>
+  )}
+
+  {rest.length > 0 && (
+    <div>
+      <div class="posts-header">
+        <span class="posts-title">Alle Artikel</span>
+        <span class="posts-count" id="count">{rest.length} Artikel</span>
+      </div>
+      <div class="posts-grid" id="grid">
+        {rest.map((post) => (
+          <a href={`/blog/${post.slug}/`} class="post-card reveal" data-date={post.data.pubDate.valueOf()}>
+            {post.data.heroImage && (
+              <img
+                src={typeof post.data.heroImage === 'string' ? post.data.heroImage : post.data.heroImage.src}
+                alt={post.data.title}
+              />
+            )}
+            <div class="post-body">
+              <span class="post-tag">Guide</span>
+              <div class="post-title">{post.data.title}</div>
+              <p class="post-desc">{post.data.description}</p>
+              <div class="post-meta">
+                <span class="post-date">
+                  {post.data.pubDate.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })}
+                </span>
+                <span class="post-arr">→</span>
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {allPosts.length === 0 && (
+    <div class="empty reveal">
+      <div style="font-size:2rem">📝</div>
+      <p>Noch keine Artikel vorhanden — schau bald wieder vorbei!</p>
+    </div>
+  )}
+
+  <div class="nl-strip reveal">
+    <div>
+      <h3>Keinen Artikel verpassen</h3>
+      <p>Neue Artikel direkt per E-Mail — jeden Dienstag.</p>
+    </div>
+    <form class="nl-form" onsubmit="return false;">
+      <input type="email" placeholder="deine@email.de" />
+      <button type="submit">Abonnieren →</button>
+    </form>
+  </div>
+
+</div>
+
+<div class="wrap">
+  <footer>
+    <a href="/" class="footer-logo">Flowfy<span>.</span></a>
+    <div class="footer-links">
+      <a href="/ratgeber">Ratgeber</a>
+      <a href="/ueber-mich">Über mich</a>
+      <a href="/kontakt">Kontakt</a>
+    </div>
+    <span style="font-size:0.75rem;color:var(--text3)">© {new Date().getFullYear()} Flowfy</span>
+  </footer>
+</div>
+
+<script>
+  const obs = new IntersectionObserver(
+    entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+    { threshold: 0.05 }
+  );
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  const sort = document.getElementById('sort');
+  const grid = document.getElementById('grid');
+  const count = document.getElementById('count');
+
+  sort?.addEventListener('change', () => {
+    const cards = [...grid.querySelectorAll('.post-card')];
+    cards.sort((a, b) => {
+      const da = parseInt(a.dataset.date);
+      const db = parseInt(b.dataset.date);
+      return sort.value === 'new' ? db - da : da - db;
+    });
+    cards.forEach(c => grid.appendChild(c));
+  });
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>

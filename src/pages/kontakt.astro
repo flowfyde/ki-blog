@@ -1,0 +1,412 @@
+---
+---
+
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kontakt — Flowfy</title>
+  <meta name="description" content="Schreib mir eine Nachricht — Themenvorschläge, Kooperationen oder einfach Hallo." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Instrument+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f8f7f4; --bg2: #f0ede8;
+      --border: #e8e4dd; --border2: #d4cfc7;
+      --text: #1a1815; --text2: #6b6660; --text3: #9b9590;
+      --accent: #1a6b4a; --accent-light: #e8f4ee; --accent2: #2d8f65;
+      --radius: 12px; --radius-lg: 20px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow: 0 4px 16px rgba(0,0,0,0.08);
+      --error: #dc2626; --success: #16a34a;
+    }
+    html { background: var(--bg); color: var(--text); font-family: 'Instrument Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+    body { overflow-x: hidden; }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 max(2rem, calc((100vw - 1200px) / 2));
+      background: rgba(248,247,244,0.88); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 900; font-size: 1.25rem; color: var(--text); text-decoration: none; letter-spacing: -0.03em; }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 0.25rem; align-items: center; }
+    .nav-links a { font-size: 0.875rem; color: var(--text2); text-decoration: none; padding: 0.4rem 0.75rem; border-radius: 8px; transition: all 0.15s; font-weight: 500; }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); background: var(--bg2); }
+    .nav-cta { background: var(--accent) !important; color: white !important; }
+    .nav-cta:hover { background: var(--accent2) !important; }
+
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+
+    .page {
+      padding: 120px 0 6rem;
+      display: grid; grid-template-columns: 1fr 480px;
+      gap: 5rem; align-items: start;
+    }
+
+    /* LEFT SIDE */
+    .page-tag { font-size: 0.72rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.6rem; }
+    h1 { font-family: 'Cabinet Grotesk', sans-serif; font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 900; letter-spacing: -0.04em; line-height: 1.08; color: var(--text); margin-bottom: 1rem; }
+    h1 span { color: var(--accent); }
+    .lead { font-size: 0.95rem; color: var(--text2); line-height: 1.75; margin-bottom: 2.5rem; max-width: 44ch; }
+
+    .contact-options { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 3rem; }
+    .contact-option {
+      display: flex; align-items: flex-start; gap: 1rem;
+      background: white; border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.1rem 1.25rem;
+      transition: all 0.2s;
+    }
+    .contact-option:hover { border-color: var(--border2); box-shadow: var(--shadow-sm); }
+    .opt-icon {
+      width: 38px; height: 38px; border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+    }
+    .opt-title { font-family: 'Cabinet Grotesk', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
+    .opt-desc { font-size: 0.8rem; color: var(--text2); line-height: 1.5; }
+
+    .response-time {
+      display: flex; align-items: center; gap: 0.75rem;
+      background: var(--accent-light); border: 1px solid rgba(26,107,74,0.15);
+      border-radius: var(--radius); padding: 0.85rem 1.1rem;
+    }
+    .rt-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; flex-shrink: 0; animation: pulse 2s ease infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+    .rt-text { font-size: 0.8rem; color: var(--accent); font-weight: 500; }
+
+    /* FORM */
+    .form-card {
+      background: white; border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 2rem;
+      box-shadow: var(--shadow-sm); position: sticky; top: 88px;
+    }
+
+    .form-title { font-family: 'Cabinet Grotesk', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--text); margin-bottom: 0.35rem; letter-spacing: -0.02em; }
+    .form-sub { font-size: 0.8rem; color: var(--text3); margin-bottom: 1.5rem; }
+
+    .form-group { margin-bottom: 1.1rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.1rem; }
+
+    label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--text); margin-bottom: 0.4rem; }
+    .required { color: var(--accent); }
+
+    input, textarea, select {
+      width: 100%; background: var(--bg); border: 1px solid var(--border2);
+      color: var(--text); padding: 0.7rem 0.9rem; border-radius: var(--radius);
+      font-size: 0.875rem; font-family: 'Instrument Sans', sans-serif;
+      outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(26,107,74,0.1);
+    }
+    input::placeholder, textarea::placeholder { color: var(--text3); }
+    textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
+
+    .topic-btns { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+    .topic-btn {
+      font-size: 0.75rem; padding: 0.28rem 0.7rem; border-radius: 100px;
+      border: 1px solid var(--border2); background: white; color: var(--text2);
+      cursor: pointer; transition: all 0.15s; font-family: 'Instrument Sans', sans-serif;
+    }
+    .topic-btn:hover, .topic-btn.selected { background: var(--accent); color: white; border-color: var(--accent); }
+
+    .char-count { font-size: 0.72rem; color: var(--text3); text-align: right; margin-top: 0.3rem; }
+    .char-count.warn { color: var(--error); }
+
+    .submit-btn {
+      width: 100%; background: var(--accent); color: white; border: none;
+      padding: 0.85rem; border-radius: var(--radius); font-size: 0.9rem;
+      font-weight: 600; cursor: pointer; font-family: 'Instrument Sans', sans-serif;
+      transition: all 0.2s; margin-top: 0.5rem; display: flex;
+      align-items: center; justify-content: center; gap: 0.5rem;
+    }
+    .submit-btn:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: var(--shadow); }
+    .submit-btn:active { transform: translateY(0); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .form-note { font-size: 0.72rem; color: var(--text3); text-align: center; margin-top: 0.75rem; line-height: 1.5; }
+
+    /* SUCCESS */
+    .success-state {
+      display: none; text-align: center; padding: 2rem 1rem;
+    }
+    .success-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .success-title { font-family: 'Cabinet Grotesk', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--text); margin-bottom: 0.5rem; }
+    .success-desc { font-size: 0.85rem; color: var(--text2); line-height: 1.6; }
+
+    /* FAQ */
+    .faq { margin-top: 4rem; margin-bottom: 5rem; }
+    .faq-title { font-family: 'Cabinet Grotesk', sans-serif; font-size: 1.3rem; font-weight: 800; color: var(--text); margin-bottom: 1.25rem; letter-spacing: -0.02em; }
+    .faq-item { border-bottom: 1px solid var(--border); }
+    .faq-q {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 0; cursor: pointer; font-size: 0.9rem; font-weight: 500; color: var(--text);
+      transition: color 0.15s; user-select: none;
+    }
+    .faq-q:hover { color: var(--accent); }
+    .faq-arrow { transition: transform 0.2s; color: var(--text3); font-size: 0.8rem; }
+    .faq-item.open .faq-arrow { transform: rotate(180deg); }
+    .faq-a { font-size: 0.85rem; color: var(--text2); line-height: 1.7; padding-bottom: 1rem; display: none; }
+    .faq-item.open .faq-a { display: block; }
+
+    footer { border-top: 1px solid var(--border); padding: 2rem 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .footer-logo { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 900; font-size: 1rem; color: var(--text2); text-decoration: none; }
+    .footer-logo span { color: var(--accent); }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a { font-size: 0.78rem; color: var(--text3); text-decoration: none; transition: color 0.15s; }
+    .footer-links a:hover { color: var(--text); }
+
+    .reveal { opacity: 0; transform: translateY(16px); transition: all 0.5s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .d1 { transition-delay: 0.1s; } .d2 { transition-delay: 0.2s; }
+
+    @media (max-width: 900px) {
+      .page { grid-template-columns: 1fr; gap: 2.5rem; }
+      .form-card { position: static; }
+      .form-row { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Flowfy<span>.</span></a>
+  <div class="nav-links">
+    <a href="/ratgeber">KI-Ratgeber</a>
+    <a href="/blog">Blog</a>
+    <a href="/ueber-mich">Über mich</a>
+    <a href="/kontakt" class="active">Kontakt</a>
+    <a href="https://claude.ai" target="_blank" class="nav-cta">Claude testen →</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="page">
+
+    <!-- LEFT -->
+    <div>
+      <div class="page-tag reveal">Kontakt</div>
+      <h1 class="reveal d1">Schreib mir — ich freue mich über <span>jede Nachricht</span></h1>
+      <p class="lead reveal d2">Themenvorschläge, Kooperationsanfragen, Feedback zu Artikeln oder einfach Hallo — ich lese alles und antworte persönlich.</p>
+
+      <div class="contact-options reveal">
+        <div class="contact-option">
+          <div class="opt-icon" style="background:#e8f4ee">✍️</div>
+          <div>
+            <div class="opt-title">Themenvorschläge</div>
+            <div class="opt-desc">Du vermisst ein Thema oder willst einen bestimmten Artikel? Sag mir was dich interessiert.</div>
+          </div>
+        </div>
+        <div class="contact-option">
+          <div class="opt-icon" style="background:#eff6ff">🤝</div>
+          <div>
+            <div class="opt-title">Kooperationen</div>
+            <div class="opt-desc">Sponsored Posts, Produkttests oder andere Zusammenarbeit — gerne mit einem kurzen Überblick.</div>
+          </div>
+        </div>
+        <div class="contact-option">
+          <div class="opt-icon" style="background:#fef9c3">💬</div>
+          <div>
+            <div class="opt-title">Feedback & Fragen</div>
+            <div class="opt-desc">Fehler im Artikel gefunden, Frage zu einem Tool, oder einfach deine Meinung teilen.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="response-time reveal">
+        <div class="rt-dot"></div>
+        <span class="rt-text">Ich antworte in der Regel innerhalb von 1–3 Werktagen persönlich.</span>
+      </div>
+    </div>
+
+    <!-- FORM -->
+    <div class="reveal d1">
+      <div class="form-card">
+        <div id="form-content">
+          <div class="form-title">Nachricht schreiben</div>
+          <div class="form-sub">Alle Felder mit * sind Pflichtfelder.</div>
+
+          <form id="contact-form" novalidate>
+            <div class="form-row">
+              <div>
+                <label>Vorname <span class="required">*</span></label>
+                <input type="text" id="fname" placeholder="Max" required />
+              </div>
+              <div>
+                <label>Nachname</label>
+                <input type="text" id="lname" placeholder="Mustermann" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>E-Mail <span class="required">*</span></label>
+              <input type="email" id="email" placeholder="max@beispiel.de" required />
+            </div>
+
+            <div class="form-group">
+              <label>Thema</label>
+              <div class="topic-btns">
+                <button type="button" class="topic-btn" data-topic="Themenvorschlag">Themenvorschlag</button>
+                <button type="button" class="topic-btn" data-topic="Kooperation">Kooperation</button>
+                <button type="button" class="topic-btn" data-topic="Feedback">Feedback</button>
+                <button type="button" class="topic-btn" data-topic="Frage">Frage</button>
+                <button type="button" class="topic-btn" data-topic="Sonstiges">Sonstiges</button>
+              </div>
+              <input type="hidden" id="topic" value="" />
+            </div>
+
+            <div class="form-group">
+              <label>Nachricht <span class="required">*</span></label>
+              <textarea id="message" placeholder="Deine Nachricht..." maxlength="1000" required></textarea>
+              <div class="char-count" id="char-count">0 / 1000</div>
+            </div>
+
+            <div class="form-group" style="display:flex;align-items:flex-start;gap:0.6rem">
+              <input type="checkbox" id="privacy" style="width:16px;height:16px;margin-top:2px;flex-shrink:0;accent-color:var(--accent)" required />
+              <label for="privacy" style="font-size:0.78rem;font-weight:400;color:var(--text2);cursor:pointer">
+                Ich habe die <a href="#" style="color:var(--accent)">Datenschutzerklärung</a> gelesen und bin einverstanden. <span class="required">*</span>
+              </label>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submit-btn">
+              <span id="btn-text">Nachricht senden →</span>
+            </button>
+            <p class="form-note">Deine Daten werden nur zur Beantwortung deiner Anfrage verwendet.</p>
+          </form>
+        </div>
+
+        <div class="success-state" id="success-state">
+          <div class="success-icon">✅</div>
+          <div class="success-title">Nachricht erhalten!</div>
+          <p class="success-desc">Danke für deine Nachricht. Ich melde mich innerhalb von 1–3 Werktagen persönlich bei dir.</p>
+          <button onclick="resetForm()" style="margin-top:1.25rem;background:var(--accent-light);color:var(--accent);border:none;padding:0.6rem 1.2rem;border-radius:var(--radius);font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'Instrument Sans',sans-serif">
+            Neue Nachricht schreiben
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq reveal">
+    <div class="faq-title">Häufige Fragen</div>
+
+    <div class="faq-item">
+      <div class="faq-q">Antwortest du wirklich persönlich? <span class="faq-arrow">▾</span></div>
+      <div class="faq-a">Ja — jede Nachricht lese und beantworte ich selbst. Flowfy ist ein Ein-Personen-Projekt, kein Unternehmen mit Support-Team.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Machst du Sponsored Posts oder Kooperationen? <span class="faq-arrow">▾</span></div>
+      <div class="faq-a">Grundsätzlich ja — aber nur für Tools die ich selbst kenne und gut finde. Gesponserte Inhalte werden immer klar als solche gekennzeichnet.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Kann ich einen Artikel-Thema vorschlagen? <span class="faq-arrow">▾</span></div>
+      <div class="faq-a">Sehr gerne! Schreib mir einfach was dich interessiert oder was dir bei KI-Tools unklar ist. Viele meiner besten Artikel entstehen aus Leser-Fragen.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Wie lange dauert eine Antwort? <span class="faq-arrow">▾</span></div>
+      <div class="faq-a">In der Regel 1–3 Werktage. Da Flowfy ein Nebenprojekt ist, kann es in manchen Wochen etwas länger dauern — ich melde mich aber immer.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="wrap">
+  <footer>
+    <a href="/" class="footer-logo">Flowfy<span>.</span></a>
+    <div class="footer-links">
+      <a href="/ratgeber">Ratgeber</a>
+      <a href="/blog">Blog</a>
+      <a href="/ueber-mich">Über mich</a>
+    </div>
+    <span style="font-size:0.75rem;color:var(--text3)">© {new Date().getFullYear()} Flowfy</span>
+  </footer>
+</div>
+
+<script>
+  const obs = new IntersectionObserver(
+    entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+    { threshold: 0.05 }
+  );
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  // Topic buttons
+  document.querySelectorAll('.topic-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      document.getElementById('topic').value = btn.dataset.topic;
+    });
+  });
+
+  // Char count
+  const msg = document.getElementById('message');
+  const counter = document.getElementById('char-count');
+  msg?.addEventListener('input', () => {
+    const len = msg.value.length;
+    counter.textContent = `${len} / 1000`;
+    counter.classList.toggle('warn', len > 900);
+  });
+
+  // Form submit
+  const form = document.getElementById('contact-form');
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const fname = document.getElementById('fname').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const message = document.getElementById('message').value.trim();
+    const privacy = document.getElementById('privacy').checked;
+
+    if (!fname || !email || !message || !privacy) {
+      const missing = [];
+      if (!fname) missing.push('Vorname');
+      if (!email) missing.push('E-Mail');
+      if (!message) missing.push('Nachricht');
+      if (!privacy) missing.push('Datenschutz-Zustimmung');
+      alert(`Bitte fülle folgende Felder aus: ${missing.join(', ')}`);
+      return;
+    }
+
+    const btn = document.getElementById('submit-btn');
+    const btnText = document.getElementById('btn-text');
+    btn.disabled = true;
+    btnText.textContent = 'Wird gesendet...';
+
+    setTimeout(() => {
+      document.getElementById('form-content').style.display = 'none';
+      document.getElementById('success-state').style.display = 'block';
+    }, 800);
+  });
+
+  function resetForm() {
+    document.getElementById('form-content').style.display = 'block';
+    document.getElementById('success-state').style.display = 'none';
+    document.getElementById('contact-form').reset();
+    document.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById('topic').value = '';
+    document.getElementById('char-count').textContent = '0 / 1000';
+    document.getElementById('submit-btn').disabled = false;
+    document.getElementById('btn-text').textContent = 'Nachricht senden →';
+  }
+
+  // FAQ accordion
+  document.querySelectorAll('.faq-q').forEach(q => {
+    q.addEventListener('click', () => {
+      const item = q.parentElement;
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    });
+  });
+</script>
+
+</body>
+</html>

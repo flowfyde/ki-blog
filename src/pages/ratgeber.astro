@@ -1,0 +1,363 @@
+---
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const categories = [
+  {
+    id: 'claude',
+    name: 'Claude & Anthropic',
+    icon: '🤖',
+    color: '#1a6b4a',
+    colorLight: '#e8f4ee',
+    desc: 'Alles über Claude AI — der KI-Assistent von Anthropic.',
+    articles: [
+      { title: 'Was ist Claude AI? Der ehrliche Einsteiger-Guide', slug: 'was-ist-claude-ai', desc: 'Claude erklärt für Anfänger — ohne Fachwörter.' },
+      { title: 'Claude kostenlos nutzen — was bekommst du wirklich?', slug: 'claude-kostenlos', desc: 'Gratis vs. Pro: was sich lohnt und was nicht.' },
+      { title: 'Claude für den Alltag — 7 konkrete Anwendungen', slug: 'claude-alltag', desc: 'So nutzt du Claude täglich sinnvoll.' },
+    ]
+  },
+  {
+    id: 'chatgpt',
+    name: 'ChatGPT & OpenAI',
+    icon: '💬',
+    color: '#2563eb',
+    colorLight: '#eff6ff',
+    desc: 'Guides und Tipps rund um ChatGPT von OpenAI.',
+    articles: [
+      { title: 'Claude vs. ChatGPT — welches Tool ist besser für dich?', slug: 'claude-vs-chatgpt', desc: 'Ein ehrlicher Vergleich nach einem Jahr Nutzung.' },
+      { title: 'ChatGPT kostenlos vs. Plus — lohnt sich das Upgrade?', slug: 'chatgpt-kostenlos-vs-plus', desc: 'Wann sich 20 € im Monat wirklich auszahlen.' },
+      { title: 'ChatGPT Plugins erklärt — so erweiterst du dein KI-Tool', slug: 'chatgpt-plugins', desc: 'Die nützlichsten Plugins und wie du sie nutzt.' },
+    ]
+  },
+  {
+    id: 'vergleich',
+    name: 'KI-Tools im Vergleich',
+    icon: '⚖️',
+    color: '#7c3aed',
+    colorLight: '#f5f3ff',
+    desc: 'Ehrliche Vergleiche zwischen den besten KI-Tools.',
+    articles: [
+      { title: 'Die besten KI-Tools 2025 — Übersicht & Vergleich', slug: 'beste-ki-tools', desc: 'Welches Tool für welchen Zweck am besten passt.' },
+      { title: 'KI-Bildgeneratoren im Vergleich — Midjourney, DALL-E & Co.', slug: 'ki-bildgeneratoren', desc: 'Bilder mit KI erstellen — so funktioniert es.' },
+      { title: 'Gratis KI-Tools — die besten kostenlosen Optionen', slug: 'gratis-ki-tools', desc: 'Starke KI ohne monatliche Kosten.' },
+    ]
+  },
+  {
+    id: 'prompts',
+    name: 'Prompts & Anleitungen',
+    icon: '✍️',
+    color: '#d97706',
+    colorLight: '#fffbeb',
+    desc: 'Fertige Prompts und Schritt-für-Schritt Anleitungen.',
+    articles: [
+      { title: '5 Claude Prompts die du sofort nutzen kannst', slug: '5-claude-prompts-die-du-sofort-nutzen-kannst', desc: 'Copy-paste Prompts für den täglichen Einsatz.' },
+      { title: 'Der perfekte Prompt — so schreibst du KI-Anfragen richtig', slug: 'perfekter-prompt', desc: 'Warum manche Prompts viel besser funktionieren.' },
+      { title: 'Prompt-Vorlagen für E-Mails, Texte und Ideen', slug: 'prompt-vorlagen', desc: '20 Prompts die dir sofort Zeit sparen.' },
+    ]
+  },
+  {
+    id: 'alltag',
+    name: 'KI im Alltag',
+    icon: '🏠',
+    color: '#dc2626',
+    colorLight: '#fef2f2',
+    desc: 'Wie KI deinen Alltag einfacher und effizienter macht.',
+    articles: [
+      { title: 'Mit KI Zeit sparen — 10 praktische Anwendungen', slug: 'ki-zeit-sparen', desc: 'Womit du täglich 1-2 Stunden zurückgewinnst.' },
+      { title: 'KI für Studenten — besser lernen mit Claude & Co.', slug: 'ki-studenten', desc: 'Zusammenfassen, verstehen, vorbereiten — mit KI.' },
+      { title: 'E-Mails mit KI schreiben — so geht\'s richtig', slug: 'emails-ki-schreiben', desc: 'Professionelle E-Mails in Sekunden.' },
+    ]
+  },
+  {
+    id: 'selbstaendig',
+    name: 'KI für Selbständige',
+    icon: '💼',
+    color: '#0891b2',
+    colorLight: '#ecfeff',
+    desc: 'KI-Tools für Freelancer, Gründer und Selbständige.',
+    articles: [
+      { title: 'KI für Selbständige — 7 konkrete Anwendungen', slug: 'claude-fuer-selbstaendige-7-konkrete-anwendungen', desc: 'Wie Freelancer und Gründer KI täglich nutzen.' },
+      { title: 'Mit KI Geld verdienen — 3 realistische Wege', slug: 'ki-geld-verdienen', desc: 'Ehrliche Einschätzung ohne Hype.' },
+      { title: 'KI-Tools für dein Business — Übersicht 2025', slug: 'ki-tools-business', desc: 'Die nützlichsten Tools für Selbständige.' },
+    ]
+  },
+];
+---
+
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KI-Ratgeber — Flowfy</title>
+  <meta name="description" content="Alle KI-Guides nach Kategorie — Claude, ChatGPT, Prompts, Vergleiche und mehr. Einfach erklärt für Einsteiger." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Instrument+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f8f7f4; --bg2: #f0ede8; --surface: #ffffff;
+      --border: #e8e4dd; --border2: #d4cfc7;
+      --text: #1a1815; --text2: #6b6660; --text3: #9b9590;
+      --accent: #1a6b4a; --accent-light: #e8f4ee; --accent2: #2d8f65;
+      --radius: 12px; --radius-lg: 20px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06); --shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    html { background: var(--bg); color: var(--text); font-family: 'Instrument Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+    body { overflow-x: hidden; }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 max(2rem, calc((100vw - 1200px) / 2));
+      background: rgba(248,247,244,0.88); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 900; font-size: 1.25rem; color: var(--text); text-decoration: none; letter-spacing: -0.03em; }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 0.25rem; align-items: center; }
+    .nav-links a { font-size: 0.875rem; color: var(--text2); text-decoration: none; padding: 0.4rem 0.75rem; border-radius: 8px; transition: all 0.15s; font-weight: 500; }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); background: var(--bg2); }
+    .nav-cta { background: var(--accent) !important; color: white !important; }
+    .nav-cta:hover { background: var(--accent2) !important; }
+
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+
+    .page-header {
+      padding: 120px 0 60px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 4rem;
+    }
+    .page-tag { font-size: 0.72rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.6rem; }
+    .page-title { font-family: 'Cabinet Grotesk', sans-serif; font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; letter-spacing: -0.04em; color: var(--text); margin-bottom: 0.85rem; }
+    .page-sub { font-size: 1rem; color: var(--text2); line-height: 1.7; max-width: 55ch; margin-bottom: 2rem; }
+
+    .cat-nav { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .cat-pill {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.8rem; font-weight: 500; padding: 0.4rem 0.9rem;
+      border-radius: 100px; border: 1px solid var(--border2);
+      background: white; color: var(--text2); text-decoration: none;
+      transition: all 0.15s; cursor: pointer;
+    }
+    .cat-pill:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+    .cat-pill.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+    .search-bar {
+      display: flex; align-items: center; gap: 0.75rem;
+      background: white; border: 1px solid var(--border2);
+      border-radius: var(--radius); padding: 0.6rem 1rem;
+      max-width: 400px; margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .search-bar input {
+      border: none; outline: none; font-size: 0.875rem;
+      color: var(--text); font-family: 'Instrument Sans', sans-serif;
+      background: transparent; flex: 1;
+    }
+    .search-bar input::placeholder { color: var(--text3); }
+    .search-icon { color: var(--text3); font-size: 0.9rem; }
+
+    .categories { display: flex; flex-direction: column; gap: 4rem; margin-bottom: 6rem; }
+
+    .category-block {}
+    .cat-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.5rem; padding-bottom: 1rem;
+      border-bottom: 2px solid; flex-wrap: wrap; gap: 1rem;
+    }
+    .cat-header-left { display: flex; align-items: center; gap: 0.85rem; }
+    .cat-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+    }
+    .cat-name { font-family: 'Cabinet Grotesk', sans-serif; font-size: 1.3rem; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+    .cat-desc { font-size: 0.8rem; color: var(--text2); margin-top: 2px; }
+    .cat-count { font-size: 0.75rem; color: var(--text3); background: var(--bg2); padding: 0.2rem 0.6rem; border-radius: 100px; }
+    .cat-link { font-size: 0.8rem; color: var(--accent); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 0.3rem; transition: gap 0.15s; }
+    .cat-link:hover { gap: 0.5rem; }
+
+    .articles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+
+    .art-card {
+      background: white; border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.25rem 1.4rem; text-decoration: none; display: flex;
+      flex-direction: column; gap: 0.5rem; transition: all 0.2s; position: relative;
+    }
+    .art-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); border-color: var(--border2); }
+    .art-card-tag { font-size: 0.68rem; font-weight: 600; padding: 0.18rem 0.55rem; border-radius: 4px; display: inline-block; text-transform: uppercase; letter-spacing: 0.04em; width: fit-content; }
+    .art-card-title { font-family: 'Cabinet Grotesk', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--text); line-height: 1.3; }
+    .art-card-desc { font-size: 0.82rem; color: var(--text2); line-height: 1.55; flex: 1; }
+    .art-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 0.5rem; padding-top: 0.75rem; border-top: 1px solid var(--border); }
+    .art-card-status { font-size: 0.72rem; }
+    .art-card-arr { font-size: 0.85rem; transition: transform 0.15s; }
+    .art-card:hover .art-card-arr { transform: translateX(3px); }
+
+    .art-card.published .art-card-arr { color: var(--accent); }
+    .art-card.coming { opacity: 0.65; cursor: default; }
+    .art-card.coming:hover { transform: none; box-shadow: none; }
+    .coming-badge { font-size: 0.68rem; color: var(--text3); background: var(--bg2); padding: 0.15rem 0.5rem; border-radius: 4px; }
+
+    .stats-bar {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border); border-radius: var(--radius-lg);
+      overflow: hidden; margin-bottom: 4rem;
+    }
+    .stat { background: white; padding: 1.5rem; text-align: center; }
+    .stat-num { font-family: 'Cabinet Grotesk', sans-serif; font-size: 2rem; font-weight: 900; letter-spacing: -0.04em; color: var(--text); }
+    .stat-num span { color: var(--accent); }
+    .stat-label { font-size: 0.78rem; color: var(--text3); margin-top: 4px; }
+
+    footer { border-top: 1px solid var(--border); padding: 2rem 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .footer-logo { font-family: 'Cabinet Grotesk', sans-serif; font-weight: 900; font-size: 1rem; color: var(--text2); text-decoration: none; letter-spacing: -0.02em; }
+    .footer-logo span { color: var(--accent); }
+    .footer-text { font-size: 0.75rem; color: var(--text3); }
+
+    .reveal { opacity: 0; transform: translateY(16px); transition: all 0.5s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .d1 { transition-delay: 0.05s; } .d2 { transition-delay: 0.1s; } .d3 { transition-delay: 0.15s; }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .stats-bar { grid-template-columns: 1fr 1fr; }
+      .articles-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">Flowfy<span>.</span></a>
+  <div class="nav-links">
+    <a href="/ratgeber" class="active">KI-Ratgeber</a>
+    <a href="/blog">Blog</a>
+    <a href="/ueber-mich">Über mich</a>
+    <a href="/kontakt">Kontakt</a>
+    <a href="https://claude.ai" target="_blank" class="nav-cta">Claude testen →</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <div class="page-header">
+    <div class="page-tag">Ratgeber</div>
+    <h1 class="page-title">KI-Ratgeber</h1>
+    <p class="page-sub">Alle Guides, Tutorials und Erklärungen — übersichtlich nach Thema sortiert. Von Anfänger bis Fortgeschrittener.</p>
+
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search" placeholder="Artikel suchen..." />
+    </div>
+
+    <div class="cat-nav">
+      <button class="cat-pill active" data-filter="all">Alle Themen</button>
+      {categories.map(cat => (
+        <button class="cat-pill" data-filter={cat.id} style={`--cat-color:${cat.color}`}>
+          <span>{cat.icon}</span> {cat.name}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <div class="stats-bar reveal">
+    <div class="stat"><div class="stat-num">6<span>+</span></div><div class="stat-label">Kategorien</div></div>
+    <div class="stat"><div class="stat-num">{posts.length}<span>+</span></div><div class="stat-label">Artikel</div></div>
+    <div class="stat"><div class="stat-num">100<span>%</span></div><div class="stat-label">Kostenlos</div></div>
+    <div class="stat"><div class="stat-num">5<span>min</span></div><div class="stat-label">Lesezeit</div></div>
+  </div>
+
+  <div class="categories" id="categories">
+    {categories.map((cat, ci) => (
+      <div class="category-block reveal" data-category={cat.id} style={`transition-delay:${ci * 0.05}s`}>
+        <div class="cat-header" style={`border-color:${cat.color}`}>
+          <div class="cat-header-left">
+            <div class="cat-icon" style={`background:${cat.colorLight}`}>{cat.icon}</div>
+            <div>
+              <div class="cat-name">{cat.name}</div>
+              <div class="cat-desc">{cat.desc}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:1rem">
+            <span class="cat-count">{cat.articles.length} Artikel</span>
+            <a href={`/ratgeber/${cat.id}`} class="cat-link">Alle ansehen →</a>
+          </div>
+        </div>
+
+        <div class="articles-grid">
+          {cat.articles.map((art, ai) => {
+            const published = posts.find(p => p.slug === art.slug);
+            return (
+              <a
+                href={published ? `/blog/${art.slug}/` : '#'}
+                class={`art-card ${published ? 'published' : 'coming'}`}
+                style={`transition-delay:${ai * 0.05}s`}
+              >
+                <span class="art-card-tag" style={`background:${cat.colorLight};color:${cat.color}`}>{cat.name}</span>
+                <div class="art-card-title">{art.title}</div>
+                <div class="art-card-desc">{art.desc}</div>
+                <div class="art-card-footer">
+                  {published
+                    ? <span class="art-card-status" style={`color:${cat.color}`}>● Verfügbar</span>
+                    : <span class="coming-badge">Bald verfügbar</span>
+                  }
+                  <span class="art-card-arr" style={published ? `color:${cat.color}` : 'color:var(--text3)'}>
+                    {published ? '→' : '○'}
+                  </span>
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    ))}
+  </div>
+
+</div>
+
+<div class="wrap">
+  <footer>
+    <a href="/" class="footer-logo">Flowfy<span>.</span></a>
+    <span class="footer-text">© {new Date().getFullYear()} Flowfy — KI einfach erklärt</span>
+  </footer>
+</div>
+
+<script>
+  const obs = new IntersectionObserver(
+    entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+    { threshold: 0.05 }
+  );
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  const pills = document.querySelectorAll('.cat-pill');
+  const blocks = document.querySelectorAll('.category-block');
+
+  pills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      pills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      const filter = pill.dataset.filter;
+      blocks.forEach(block => {
+        block.style.display = (filter === 'all' || block.dataset.category === filter) ? '' : 'none';
+      });
+    });
+  });
+
+  const search = document.getElementById('search');
+  search.addEventListener('input', () => {
+    const q = search.value.toLowerCase();
+    document.querySelectorAll('.art-card').forEach(card => {
+      const text = card.textContent.toLowerCase();
+      card.style.display = text.includes(q) ? '' : 'none';
+    });
+    if (q) {
+      pills.forEach(p => p.classList.remove('active'));
+      blocks.forEach(b => b.style.display = '');
+    }
+  });
+</script>
+
+</body>
+</html>
